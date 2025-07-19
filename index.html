@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Spot the Phish</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --blue: #007BFF;
+      --green: #28a745;
+      --red: #dc3545;
+      --gray: #f8f9fa;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #eaf6ff;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .game-box {
+      background: white;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      width: 90%;
+      max-width: 600px;
+      animation: fadeIn 0.4s ease-in-out;
+      position: relative;
+    }
+
+    h1 {
+      color: var(--blue);
+      margin-bottom: 10px;
+    }
+
+    .email {
+      background: var(--gray);
+      padding: 20px;
+      border-radius: 12px;
+      text-align: left;
+      margin: 20px 0;
+      font-size: 16px;
+      border-left: 4px solid var(--blue);
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 10px;
+    }
+
+    button {
+      padding: 12px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.2s ease-in-out;
+    }
+
+    .phishing {
+      background-color: var(--red);
+      color: white;
+    }
+
+    .legit {
+      background-color: var(--green);
+      color: white;
+    }
+    .legit:hover{
+      background-color: white;
+      color: var(--green);
+      border: 2px solid var(--green);
+    }
+    .phishing:hover{
+      background-color: white;
+      color: var(--red);
+      border: 2px solid var(--red);
+    }
+
+    .quiz-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background-color: var(--blue);
+      color: white;
+    }
+    .quiz-btn:hover {
+      background-color: white;
+      color: var(--blue);
+      border: 2px solid var(--blue);
+    }
+
+    .quiz-button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 10px;
+      background-color: var(--blue);
+      color: white;
+      cursor: pointer;
+      transition: 0.2s ease-in-out;
+    }
+    .quiz-button:hover {
+      background-color: white;
+      color: var(--blue);
+      border: 2px solid var(--blue);
+    }
+
+    .feedback {
+      margin-top: 15px;
+      font-weight: bold;
+      font-size: 18px;
+    }
+
+    .correct { color: var(--green); }
+    .wrong { color: var(--red); }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes bounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.4); }
+}
+
+#animation.bounce {
+  animation: bounce 0.5s ease;
+}
+    #animation {
+      font-size: 48px;
+      color: var(--blue);
+      text-align: center;
+      margin-top: 20px;
+    }
+    button:hover {
+  transform: scale(1.05);
+}
+    button:active {
+      transform: scale(0.95);
+    }
+  </style>
+</head>
+<body>
+<audio id="sound-correct" src="sonido-correcto-331225.mp3" preload="auto"></audio>
+<audio id="sound-wrong" src="incorrect-293358.mp3" preload="auto"></audio>
+<div id="animation" style="position:absolute; top:40%; left:50%; transform:translate(-50%, -50%); font-size:64px; display:none;"></div>
+<div id="popup" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; padding:30px; border-radius:20px; box-shadow:0 0 20px rgba(0,0,0,0.3); z-index:1000; text-align:center;">
+  <div id="popup-icon" style="font-size:50px;"></div>
+  <div id="popup-text" style="margin-top:10px; font-size:20px;"></div>
+</div>
+<div id="overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); z-index:999;"></div>
+
+<div class="game-box" id="game">
+  <h1>🎣 Spot the Phish!</h1>
+  <p>Can you outsmart the scammers? 😎</p>
+
+  <div class="email" id="emailBox">
+    <strong>From: PayPal &lt;service@paypal.com&gt;</strong><br>
+    Your account has been locked. Please <a href="#">click here</a> to unlock it.
+  </div>
+
+  <div class="buttons" id="phish-buttons">
+  <button class="phishing" onclick="check('phishing')">🚫 Phishing</button>
+  <button class="legit" onclick="check('legit')">✅ Legit</button>
+</div>
+
+
+  <div class="feedback" id="feedback"></div>
+
+  <button class="quiz-btn" onclick="location.href='quiz.html'">📝 Take the Quiz</button>
+</div>
+
+<script>
+   
+
+  const emails = [
+    {
+      from: "PayPal <service@paypal.com>",
+      body: "Your account has been locked. Please <a href='#'>click here</a> to unlock it.",
+      answer: "phishing"
+    },
+    {
+      from: "Amazon <orders@amazon.com>",
+      body: "Thanks for your recent order. Your receipt is attached.",
+      answer: "legit"
+    },
+    {
+      from: "Support <help@fakebank-security.com>",
+      body: "We detected suspicious activity. Click here to reset your account.",
+      answer: "phishing"
+    },
+
+    {
+      from: "Apple <gift@iphonepromo.com>",
+      body: "🎁 Congratulations! You won a new iPhone. <a href='#'>Claim now</a>.",
+      answer: "phishing"
+    },
+    {
+      from: "LinkedIn <confirm@linkedin.com>",
+      body: "Welcome to LinkedIn! Please confirm your email address.",
+      answer: "legit"
+    },
+    {
+      from: "Netflix <support@netflix.com>",
+      body: "Your subscription has been renewed. Enjoy your shows!",
+      answer: "legit"
+    },
+    {
+      from: "Bank Alert <alert@yourbank.com>",
+      body: "Your account has been compromised. Please verify your identity.",
+      answer: "phishing"
+    }
+    ,
+    {
+      from: "Google <security@google.com>",
+      body: "Your account has been locked. Please <a href='#'>click here</a> to unlock it.",
+      answer: "phishing"   
+    }
+  ];
+
+  let current = 0;
+
+  const emailBox = document.getElementById("emailBox");
+  const feedback = document.getElementById("feedback");
+
+  function loadEmail() {
+    const email = emails[current];
+    emailBox.innerHTML = `<strong>From: ${email.from}</strong><br>${email.body}`;
+    feedback.innerText = '';
+  }
+
+  function check(choice) {
+  const correctAnswer = emails[current].answer;
+  const sound = choice === correctAnswer ? document.getElementById('sound-correct') : document.getElementById('sound-wrong');
+  const animation = document.getElementById('animation');
+
+  const popup = document.getElementById('popup');
+  const popupText = document.getElementById('popup-text');
+  const popupIcon = document.getElementById('popup-icon');
+  const overlay = document.getElementById('overlay');
+
+  if (choice === correctAnswer) {
+    feedback.innerHTML = "✅ Correct! You're a cyber ninja!";
+    feedback.className = "feedback correct";
+    animation.innerHTML = "🎉";
+    confetti(); // 🎊 confetti animation
+    popupIcon.innerHTML = "🎉";
+    popupText.innerText = "Well done! That's correct!";
+  } else {
+    feedback.innerHTML = `❌ Oops! This was <strong>${correctAnswer.toUpperCase()}</strong>.`;
+    feedback.className = "feedback wrong";
+    animation.innerHTML = "💥";
+    popupIcon.innerHTML = "❌";
+    popupText.innerText = "Oops! Not quite. Try again!";
+  }
+
+  // Play sound and show popup
+  sound.play();
+  animation.style.display = "block";
+  animation.classList.add("bounce");
+  popup.style.display = "block";
+  overlay.style.display = "block";
+
+  setTimeout(() => {
+    animation.style.display = "none";
+    animation.classList.remove("bounce");
+    popup.style.display = "none";
+    overlay.style.display = "none";
+    current++;
+    if (current >= emails.length) {
+      feedback.innerHTML = "🎉 Game Over! You're ready!";
+      emailBox.innerHTML = "<strong>That's all!</strong><br><button class='quiz-button' onclick=\"location.href='quiz.html'\">📝 Start the Quiz</button>";
+      document.getElementById("phish-buttons").style.display = "none";
+    }else {
+      loadEmail();
+    }
+  }, 2500);
+}
+
+  // init
+  loadEmail();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+</body>
+</html>

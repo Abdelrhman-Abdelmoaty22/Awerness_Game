@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Cyber Awareness Quiz</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --blue: #007BFF;
+      --green: #28a745;
+      --red: #dc3545;
+      --gray: #f8f9fa;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #eaf6ff;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .quiz-box {
+      background: white;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      width: 90%;
+      max-width: 600px;
+      animation: fadeIn 0.4s ease-in-out;
+      position: relative;
+    }
+
+    h1 {
+      color: var(--blue);
+      margin-bottom: 10px;
+    }
+
+    h3 {
+      color: var(--blue);
+    }
+
+    .feedback {
+      margin-top: 10px;
+      font-weight: bold;
+      font-size: 18px;
+    }
+
+    .reason {
+      font-size: 15px;
+      color: #444;
+      margin-top: 5px;
+    }
+
+    .correct { color: var(--green); }
+    .wrong { color: var(--red); }
+
+    button {
+      margin: 8px;
+      padding: 12px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.2s ease-in-out;
+      background-color: var(--blue);
+      color: white;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      background-color: white;
+        color: var(--blue);
+    border: 2px solid var(--blue);
+    }
+
+    .back-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background-color: var(--gray);
+      color: var(--blue);
+      border: 2px solid var(--blue);
+    }
+
+    .back-btn:hover {
+      background-color: var(--blue);
+      color: var(--gray);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+<div class="quiz-box">
+  <button class="back-btn" onclick="location.href='index.html'">🔙 Back to Game</button>
+  <h1>📝 Cyber Awareness Quiz</h1>
+  <div id="quiz-container"></div>
+  <div id="quiz-feedback" class="feedback"></div>
+  <div id="quiz-reason" class="reason"></div>
+</div>
+
+<audio id="correct-sound" src="sonido-correcto-331225.mp3" preload="auto"></audio>
+<audio id="wrong-sound" src="incorrect-293358.mp3" preload="auto"></audio>
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script>
+  const quizQuestions = [
+    { 
+      question: "What is phishing?", 
+      options: ["A fishing technique", "A cyber scam to steal info", "Email subscription"], 
+      answer: 1,
+      reason: "Phishing is a fraudulent attempt to obtain sensitive info via email or fake websites."
+    },
+    { 
+      question: "What's a sign of phishing?", 
+      options: ["Grammar mistakes", "Generic greeting", "Both"], 
+      answer: 2,
+      reason: "Phishing emails often include bad grammar and vague greetings like 'Dear user'."
+    },
+    { 
+      question: "Should you click unknown links?", 
+      options: ["Yes", "Only on weekends", "No"], 
+      answer: 2,
+      reason: "Never click unknown links. They might lead to malware or fake login pages."
+    },
+    { 
+      question: "A secure website starts with?", 
+      options: ["http", "https", "ftp"], 
+      answer: 1,
+      reason: "'https' indicates encryption and security — always look for the lock symbol."
+    },
+    { 
+      question: "Best way to protect passwords?", 
+      options: ["Use same everywhere", "Share with friends", "Use password manager"], 
+      answer: 2,
+      reason: "Password managers generate and store strong, unique passwords for each site."
+    },
+    { 
+      question: "What to do if you suspect phishing?", 
+      options: ["Ignore it", "Report it", "Click the link"], 
+      answer: 1,
+      reason: "Always report phishing attempts to your IT department or email provider."
+    },
+    { 
+      question: "What is a common phishing tactic?", 
+      options: ["Urgent action required", "Free gift", "Both"], 
+      answer: 2,
+      reason: "Phishing emails often create urgency or promise rewards to trick users."
+    },
+    { 
+      question: "How can you verify an email sender?", 
+      options: ["Check email address", "Look for typos", "Both"], 
+      answer: 2,
+      reason: "Always verify the sender's email address and look for inconsistencies."
+    },
+    { 
+      question: "What should you do with suspicious attachments?", 
+      options: ["Open them", "Delete them", "Forward to friends"], 
+      answer: 1,
+      reason: "Never open attachments from unknown sources; they may contain malware."
+    },
+    { 
+      question: "What is two-factor authentication?", 
+      options: ["A second password", "An extra security step", "A backup email"], 
+      answer: 1,
+      reason: "Two-factor authentication adds an extra layer of security by requiring a second verification step."
+    }
+  ];
+
+  let quizIndex = 0;
+  let quizScore = 0;
+
+  function loadQuizQuestion() {
+    if (quizIndex >= quizQuestions.length) return showQuizResult();
+
+    const q = quizQuestions[quizIndex];
+    document.getElementById("quiz-container").innerHTML = `
+      <h3>Question ${quizIndex + 1} of ${quizQuestions.length}</h3>
+      <p style="font-size:18px;">${q.question}</p>
+      ${q.options.map((opt, i) => `
+        <button onclick="checkQuizAnswer(${i})">${opt}</button>
+      `).join("")}
+    `;
+    document.getElementById("quiz-feedback").innerText = '';
+    document.getElementById("quiz-reason").innerText = '';
+  }
+
+  function checkQuizAnswer(choice) {
+    const q = quizQuestions[quizIndex];
+    const feedback = document.getElementById("quiz-feedback");
+    const reason = document.getElementById("quiz-reason");
+    const correctSound = document.getElementById("correct-sound");
+    const wrongSound = document.getElementById("wrong-sound");
+
+    if (choice === q.answer) {
+      quizScore++;
+      feedback.innerHTML = "✅ Correct!";
+      feedback.className = "feedback correct";
+      correctSound.play();
+    } else {
+      feedback.innerHTML = "❌ Incorrect.";
+      feedback.className = "feedback wrong";
+      wrongSound.play();
+    }
+
+    reason.innerHTML = "💡 " + q.reason;
+    quizIndex++;
+    setTimeout(loadQuizQuestion, 2800);
+  }
+
+  function showQuizResult() {
+  const container = document.getElementById("quiz-container");
+  const feedback = document.getElementById("quiz-feedback");
+  const reason = document.getElementById("quiz-reason");
+  const passed = quizScore >= 6;
+
+  if (passed) {
+    confetti({
+      particleCount: 150,
+      spread: 100,
+      origin: { y: 0.6 }
+    });
+
+    container.innerHTML = `
+      <h2 style="color:#28a745; font-size:28px;">🎉 Congratulations!</h2>
+      <p style="font-size:20px;">You passed the Cyber Awareness Quiz!</p>
+      <p style="font-weight:bold; font-size:18px;">Score: ${quizScore}/${quizQuestions.length}</p>
+      <button onclick="location.reload()">🔁 Try Again</button>
+      <button onclick="location.href='index.html'">🔙 Back to Game</button>
+    `;
+  } else {
+    container.innerHTML = `
+      <h2 style="color:#dc3545; font-size:28px;">❌ You Didn't Pass</h2>
+      <p style="font-size:20px;">Try again to improve your score!</p>
+      <p style="font-weight:bold; font-size:18px;">Score: ${quizScore}/${quizQuestions.length}</p>
+      <button onclick="location.reload()">🔁 Try Again</button>
+      <button onclick="location.href='index.html'">🔙 Back to Game</button>
+    `;
+  }
+
+  feedback.innerHTML = '';
+  reason.innerHTML = '';
+}
+
+  // Start quiz on load
+  loadQuizQuestion();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</body>
+</html>
