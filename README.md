@@ -13,7 +13,7 @@ An interactive and friendly web game designed to help users recognize phishing e
 
 ## 📸 Screenshots
 
-| Game Screen | Quiz Result |
+| Game Screen | Quiz Screen |
 |-------------|--------------|
 | ![Game](assets/screenshot-game.png) | ![Quiz](assets/screenshot-quiz.png) |
 
