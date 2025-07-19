@@ -36,7 +36,7 @@ An interactive and friendly web game designed to help users recognize phishing e
 Just open `index.html` in your browser. No server needed.
 
 Or try it live on GitHub Pages:  
-👉 **[Play Now](https://YOUR_USERNAME.github.io/cyber-awareness-game)**
+👉 **[Play Now](https://abdelrhman-abdelmoaty22.github.io/Awerness_Game/)**
 
 ## 🧠 Target Audience
 
