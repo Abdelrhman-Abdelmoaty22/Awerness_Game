@@ -15,7 +15,7 @@ An interactive and friendly web game designed to help users recognize phishing e
 
 | Game Screen | Quiz Result |
 |-------------|--------------|
-| ![Game]() | ![Quiz](Screenshot 2025-07-19 221016.png) |
+| ![Game](/assets/Screenshot 2025-07-19 220959.png) | ![Quiz](/assets/Screenshot 2025-07-19 221016.png) |
 
 ## 🚀 How to Use
 
